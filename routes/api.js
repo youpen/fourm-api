@@ -7,24 +7,38 @@ var merchantInfo = require('../tempdata/detail/info')
 var cityListData = require('../tempdata/city/citylist')
 var orderlist = require('../tempdata/orderList/orderList')
 
+var moment = require('moment')
 var jwtCreator = require('../models/jwtCreator')
-
+var jwtDecoder = require('../middlewares/jwtauth')
 var md5 = require('../models/md5')
+var crypto =require('crypto')
 var db = require('../models/db');
 /* GET users listing. */
 router.get('/homead', function(req, res, next) {
-  console.log('获取首页广告')
-  res.json(homeAd);
+    console.log('获取首页广告')
+    res.json(homeAd);
 });
 
 router.get('/homelist', function(req, res, next) {
   console.log('获取列表');
-  var params = req.query
+  var params = req.query;
+    var page = req.query.page;
+    var category = req.query.category;
+    var query = req.query;
+
   console.log('当前城市：' + params.city)
   console.log('当前页数：' + params.page)
   console.log('当前种类：' + params.category)
   console.log('当前关键词：' + params.query)
-  res.json(list);
+    db.find('subjects',{},{},function (err, result) {
+        if(err){
+            res.send(err)
+            throw err
+        }
+        res.json(result)
+        console.log('err',err)
+        console.log('result',result)
+    })
 });
 
 router.get('/detail/info', function (req, res, next) {
@@ -123,6 +137,32 @@ router.post('/dologin', function (req, res, next) {
     });
 })
 
+router.post('/issuesuject',[jwtDecoder], function (req, res, next) {
+    console.log('新主题');
+    console.log('token',req.body.token)
+    var title = req.body.title;
+    var content = req.body.content;
+    console.log('标题'+title)
+    console.log('内容'+ content);
+    console.log('username'+ req.username);
+    var time = moment().format('YYYY-MM-DD HH:mm:ss')
+    var subject = {
+        'id':Math.random().toString().slice(2),
+        'title':title,
+        'content':content,
+        'author':req.username,
+        'time':time,
+        'commentnum': '0'
+    }
+    db.insertOne('subjects',subject, function (err, result) {
+        if (err) {
+            console.log(err)
+            return
+        }
+        res.json({'returnCode':'000000','returnMessage':'发表成功'})
+    })
+
+})
 
 
 
