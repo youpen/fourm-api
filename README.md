@@ -1,2 +1,6 @@
 # fourm-api
-论坛对应的node服务端
+安装完mongodb后，
+```
+npm i --save && npm start 
+```
+以启动api服务
