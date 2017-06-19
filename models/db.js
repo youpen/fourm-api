@@ -35,11 +35,12 @@ exports.insertOne = function (collection,json,callback) {
 exports.find = function (collection,json,args,callback) {
     console.log('进入了find函数')
     _connectDB(function (err,db) {
-        args.pageSize = args.pageSize || 0;
-        args.page = args.page || 0;
+        var pageSize = args.pageSize || 0;
+        var page = args.page || 0;
+        var sort = args.sort;
 
         var array = [];
-        var cursor = db.collection(collection).find(json).limit(args.pageSize).skip(args.pageSize * args.page)
+        var cursor = db.collection(collection).find(json).limit(pageSize).skip(pageSize * page).sort(sort)
         cursor.forEach(function (result) {
             array.push(result)
         },function(err){
