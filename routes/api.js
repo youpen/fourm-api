@@ -1,9 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var homeAd = require('../tempdata/home/ad');
-var list = require('../tempdata/home/list')
 var cityListData = require('../tempdata/city/citylist')
-var orderlist = require('../tempdata/orderList/orderList')
 
 var moment = require('moment')
 var jwtCreator = require('../models/jwtCreator')
@@ -76,11 +74,6 @@ router.get('/detail/comment', function (req, res, next) {
 router.get('/citylist', function (req, res, next) {
     console.log('获取热门城市');
     res.json(cityListData)
-})
-
-router.get('/orderlist', function (req, res, next) {
-    console.log('获取个人订单');
-    res.json(orderlist)
 })
 
 router.post('/postcomment', [jwtDecoder], function (req, res, next) {
