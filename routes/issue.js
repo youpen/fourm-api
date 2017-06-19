@@ -8,7 +8,7 @@ var router = express.Router();
 var jwtDecoder = require('../middlewares/jwtauth')
 var moment = require('moment')
 
-router.get('/issuelist', function (req, res, next) {
+router.get('/issuelist', function (req, res) {
     console.log('获取首页列表');
     var params = req.query;
     var page = req.query.page;
@@ -28,7 +28,7 @@ router.get('/issuelist', function (req, res, next) {
     })
 });
 
-router.get('/detail', function (req, res, next) {
+router.get('/detail', function (req, res) {
     console.log('获取主题详情');
     var id = req.query.id;
     db.find('subjects', {'id': id}, {}, function (err, result) {
@@ -43,7 +43,7 @@ router.get('/detail', function (req, res, next) {
     });
 })
 
-router.get('/comment', function (req, res, next) {
+router.get('/comment', function (req, res) {
     console.log('文章评论')
     var id = req.query.id
     var page = req.query.page;
@@ -65,7 +65,7 @@ router.get('/comment', function (req, res, next) {
     })
 })
 
-router.post('/newissue', [jwtDecoder], function (req, res, next) {
+router.post('/newissue', [jwtDecoder], function (req, res) {
     console.log('新主题');
     var title = req.body.title;
     var content = req.body.content;
@@ -88,7 +88,7 @@ router.post('/newissue', [jwtDecoder], function (req, res, next) {
 
 })
 
-router.post('/newcomment', [jwtDecoder], function (req, res, next) {
+router.post('/newcomment', [jwtDecoder], function (req, res) {
     console.log('发表评论')
     var comment = req.body.comment
     var id = req.body.id
