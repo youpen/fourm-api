@@ -3,8 +3,8 @@ var router = express.Router();
 var ad = require('../tempdata/home/ad')
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  // res.render('index', { title: 'Express' });
-  res.json(ad)
+  //todo index.html & javascript on cloud
+  res.json({})
 });
 
 module.exports = router;

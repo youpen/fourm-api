@@ -8,7 +8,7 @@ var orderlist = require('../tempdata/orderList/orderList')
 var moment = require('moment')
 var jwtCreator = require('../models/jwtCreator')
 var jwtDecoder = require('../middlewares/jwtauth')
-var md5 = require('../models/md5')
+var md5 = require('../models/encrypto')
 var db = require('../models/db');
 /* GET users listing. */
 router.get('/homead', function (req, res, next) {
@@ -51,6 +51,38 @@ router.get('/detail/info', function (req, res, next) {
     });
 })
 
+router.get('/detail/comment', function (req, res, next) {
+    console.log('文章评论')
+    var id = req.query.id
+    var page = req.query.page;
+    db.find('subjects', {'id': id}, {'sort': {'time': -1}, 'pageSize': 10, 'page': page}, function (err, result) {
+        if (err) {
+            res.send(err)
+            throw err
+        }
+        var commentList = result[0] && result[0]['commentlist'];
+        if (commentList && commentList.length === 0) {
+            res.json({});
+            return
+        }
+        var hasMore = true;
+        if (commentList && commentList.length < 10) {
+            hasMore = false
+        }
+        res.json({data: commentList, hasMore: hasMore})
+    })
+})
+
+router.get('/citylist', function (req, res, next) {
+    console.log('获取热门城市');
+    res.json(cityListData)
+})
+
+router.get('/orderlist', function (req, res, next) {
+    console.log('获取个人订单');
+    res.json(orderlist)
+})
+
 router.post('/postcomment', [jwtDecoder], function (req, res, next) {
     console.log('发表评论')
     var comment = req.body.comment
@@ -69,39 +101,6 @@ router.post('/postcomment', [jwtDecoder], function (req, res, next) {
         console.log('postcomment', result.result)
 
     })
-
-})
-
-router.get('/detail/comment', function (req, res, next) {
-    console.log('文章评论')
-    var id = req.query.id
-    var page = req.query.page;
-    db.find('subjects', {'id': id}, {'sort': {'time': -1}, 'pageSize': 10, 'page': page}, function (err, result) {
-        if (err) {
-            res.send(err)
-            throw err
-        }
-        var commentList = result[0] && result[0]['commentlist'];
-        if (commentList && commentList.length === 0) {
-            res.json({});
-            return
-        }
-        var hasMore = true;
-        if(commentList && commentList.length < 10) {
-            hasMore = false
-        }
-        res.json({data:commentList,hasMore:hasMore})
-    })
-})
-
-router.get('/citylist', function (req, res, next) {
-    console.log('获取热门城市');
-    res.json(cityListData)
-})
-
-router.get('/orderlist', function (req, res, next) {
-    console.log('获取个人订单');
-    res.json(orderlist)
 })
 
 router.post('/submitcomment', function (req, res, next) {
@@ -110,18 +109,14 @@ router.post('/submitcomment', function (req, res, next) {
 })
 
 router.post('/doregister', function (req, res, next) {
-
     console.log('注册信息');
     var username = req.body.username;
     var password = req.body.password;
-    console.log('用户名' + username)
-    console.log('密码' + password);
 
     db.find('users', {'username': username}, {}, function (err, result) {
         console.log(result)
         if (err) {
-            res.json({'returnCode': '000003', 'returnMessage': '服务器错误'})
-            return
+            throw err
         }
         if (result.length !== 0) {
             res.json({'returnCode': '000001', 'returnMessage': '用户名被占用'})
@@ -148,14 +143,9 @@ router.post('/dologin', function (req, res, next) {
     console.log('登录信息');
     var username = req.body.username;
     var password = req.body.password;
-    console.log('用户名' + username)
-    console.log('密码' + password);
-
     db.find('users', {'username': username}, {}, function (err, result) {
-        console.log(result)
         if (err) {
-            res.json({'returnCode': '000003', 'returnMessage': '服务器错误'})
-            return
+            throw err
         }
         if (result.length === 0) {
             res.json({'returnCode': '000001', 'returnMessage': '无此用户'})
@@ -174,12 +164,8 @@ router.post('/dologin', function (req, res, next) {
 
 router.post('/issuesuject', [jwtDecoder], function (req, res, next) {
     console.log('新主题');
-    console.log('token', req.body.token)
     var title = req.body.title;
     var content = req.body.content;
-    console.log('标题' + title)
-    console.log('内容' + content);
-    console.log('username' + req.username);
     var time = moment().format('YYYY-MM-DD HH:mm:ss')
     var subject = {
         'id': Math.random().toString().slice(2),
@@ -191,13 +177,12 @@ router.post('/issuesuject', [jwtDecoder], function (req, res, next) {
     }
     db.insertOne('subjects', subject, function (err, result) {
         if (err) {
-            console.log(err)
+            console.log('insertOne-subjects-err', err)
             return
         }
         res.json({'returnCode': '000000', 'returnMessage': '发表成功'})
     })
 
 })
-
 
 module.exports = router;

@@ -2,7 +2,7 @@
  * Created by youpen on 17/4/27.
  */
 var MongoClient = require('mongodb').MongoClient;
-var url = require("./dburl").dbUrl;
+var url = require("./../constants/dburl").dbUrl;
 
 function _connectDB(callback) {
     MongoClient.connect(url,function (err, db) {
@@ -11,13 +11,11 @@ function _connectDB(callback) {
             callback(err,null)
             return;
         }
-        console.log('连接了数据库成功')
         callback(err,db)
     })
 }
 
 exports.insertOne = function (collection,json,callback) {
-    console.log('进入了insertOne函数')
     _connectDB(function (err, db) {
         if(err){
             console.log('connect出错')
@@ -33,7 +31,6 @@ exports.insertOne = function (collection,json,callback) {
 };
 
 exports.find = function (collection,json,args,callback) {
-    console.log('进入了find函数')
     _connectDB(function (err,db) {
         var pageSize = args.pageSize || 0;
         var page = args.page || 0;
@@ -45,7 +42,7 @@ exports.find = function (collection,json,args,callback) {
             array.push(result)
         },function(err){
             if(err){
-                console.log('foreach出错了')
+                console.log('foreach出错')
             }
             callback(null,array)
         })
