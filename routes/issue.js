@@ -10,12 +10,23 @@ var moment = require('moment')
 
 router.get('/issuelist', function (req, res) {
     console.log('获取首页列表');
-    var params = req.query;
-    var page = req.query.page;
-    var category = req.query.category;
-    var query = req.query;
-
-    db.find('subjects', {}, {'sort': {'time': -1}, 'pageSize': 10, 'page': page}, function (err, result) {
+    const { page, user, keyword } = req.query;
+    //todo add category search
+    console.log('user',user)
+    console.log('keyword',keyword)
+    let searchRestrict = {};
+    if(keyword !== 'undefined'){
+        searchRestrict = {'title':{$regex:keyword}}
+    }
+    if(user !== 'undefined'){
+        searchRestrict = {'author':user}
+    }
+    console.log('searchRestrict',searchRestrict)
+    db.find(
+        'subjects',
+        searchRestrict,
+        {'sort': {'time': -1}, 'pageSize': 10, page},
+        function (err, result) {
         if (err) {
             res.send(err)
             throw err
